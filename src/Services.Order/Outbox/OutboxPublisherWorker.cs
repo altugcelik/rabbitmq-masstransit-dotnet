@@ -22,7 +22,7 @@ public class OutboxPublisherWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("🚀 Outbox Publisher started");
+        _logger.LogInformation("Outbox Publisher started");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -42,7 +42,7 @@ public class OutboxPublisherWorker : BackgroundService
                     var messageType = Type.GetType(message.Type);
                     if (messageType == null)
                     {
-                        _logger.LogWarning("❌ Unknown message type: {Type}", message.Type);
+                        _logger.LogWarning("Unknown message type: {Type}", message.Type);
                         message.Processed = true;
                         continue;
                     }
@@ -54,14 +54,14 @@ public class OutboxPublisherWorker : BackgroundService
 
                     message.Processed = true;
 
-                    _logger.LogInformation("📤 Outbox message published: {Id}", message.Id);
+                    _logger.LogInformation("Outbox message published: {Id}", message.Id);
                 }
 
                 await db.SaveChangesAsync(stoppingToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "🔥 Outbox publishing failed");
+                _logger.LogError(ex, "Outbox publishing failed");
             }
 
             await Task.Delay(1000, stoppingToken);
