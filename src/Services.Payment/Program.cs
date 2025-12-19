@@ -1,7 +1,29 @@
-using Services.Payment;
+using MassTransit;
+using Services.Payment.Consumers;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<ProcessPaymentConsumer>();
 
-var host = builder.Build();
-host.Run();
+            x.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host("localhost", "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+
+                cfg.UseMessageRetry(r =>
+                {
+                    r.Interval(3, TimeSpan.FromSeconds(2));
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
+        });
+    })
+    .Build()
+    .Run();

@@ -1,7 +1,24 @@
-using Services.Order;
+using MassTransit;
+using Services.Order.Consumers;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<CreateOrderConsumer>();
 
-var host = builder.Build();
-host.Run();
+            x.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host("localhost", "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
+        });
+    })
+    .Build()
+    .Run();

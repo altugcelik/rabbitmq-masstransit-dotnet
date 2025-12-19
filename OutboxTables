@@ -1,0 +1,22 @@
+---------
+--Database Table
+---------
+CREATE TABLE OutboxMessages (
+Id UUID PRIMARY KEY,
+Type VARCHAR(255),
+Payload JSONB,
+OccurredOn TIMESTAMP,
+Processed BOOLEAN DEFAULT FALSE
+);
+
+---------
+--Entity Class
+---------
+public class OutboxMessage
+{
+public Guid Id { get; set; }
+public string Type { get; set; } = string.Empty;
+public string Payload { get; set; } = string.Empty;
+public DateTime OccurredOn { get; set; }
+public bool Processed { get; set; }
+}

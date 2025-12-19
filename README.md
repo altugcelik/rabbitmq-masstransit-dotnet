@@ -4,15 +4,15 @@ RabbitMQ + MassTransit (.NET Core) – Full-Feature
 
 #  Event‑Driven Microservices with RabbitMQ & MassTransit (.NET 8)
 
-This repository is **not** a hello‑world demo.
+This repository demonstrates a production‑grade event‑driven architecture
+using RabbitMQ and MassTransit.
 
-It is a **production‑grade reference architecture** that demonstrates how to:
-
-- Build event‑driven microservices
-- Guarantee message delivery (Outbox Pattern)
-- Handle failures with Retry & Dead Letter Queues
-- Orchestrate long‑running processes with Saga State Machines
-
+## Features
+- Retry & Delayed Retry
+- Dead Letter Queues
+- Saga State Machine
+- Correlation & Idempotency
+- Dockerized infrastructure
 
 > If you want to *understand* RabbitMQ instead of just using it — this repo is for you.
 
