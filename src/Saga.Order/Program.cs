@@ -1,7 +1,25 @@
+using MassTransit;
 using Saga.Order;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddMassTransit(x =>
+        {
+            x.AddSagaStateMachine<OrderStateMachine, OrderState>()
+             .InMemoryRepository();
 
-var host = builder.Build();
-host.Run();
+            x.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host("localhost", "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+
+                cfg.ConfigureEndpoints(ctx);
+            });
+        });
+    })
+    .Build()
+    .Run();
