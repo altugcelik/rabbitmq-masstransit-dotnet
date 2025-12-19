@@ -7,16 +7,13 @@ namespace Services.Order.Outbox;
 public class OutboxPublisherWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ILogger<OutboxPublisherWorker> _logger;
 
     public OutboxPublisherWorker(
         IServiceScopeFactory scopeFactory,
-        IPublishEndpoint publishEndpoint,
         ILogger<OutboxPublisherWorker> logger)
     {
         _scopeFactory = scopeFactory;
-        _publishEndpoint = publishEndpoint;
         _logger = logger;
     }
 
@@ -29,7 +26,12 @@ public class OutboxPublisherWorker : BackgroundService
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+
+                var db = scope.ServiceProvider
+                    .GetRequiredService<OrderDbContext>();
+
+                var publishEndpoint = scope.ServiceProvider
+                    .GetRequiredService<IPublishEndpoint>();
 
                 var messages = await db.OutboxMessages
                     .Where(x => !x.Processed)
@@ -42,7 +44,8 @@ public class OutboxPublisherWorker : BackgroundService
                     var messageType = Type.GetType(message.Type);
                     if (messageType == null)
                     {
-                        _logger.LogWarning("Unknown message type: {Type}", message.Type);
+                        _logger.LogWarning(
+                            "Unknown message type: {Type}", message.Type);
                         message.Processed = true;
                         continue;
                     }
@@ -50,18 +53,20 @@ public class OutboxPublisherWorker : BackgroundService
                     var payload = JsonSerializer.Deserialize(
                         message.Payload, messageType);
 
-                    await _publishEndpoint.Publish(payload!, messageType, stoppingToken);
+                    await publishEndpoint.Publish(
+                        payload!, messageType, stoppingToken);
 
                     message.Processed = true;
 
-                    _logger.LogInformation("Outbox message published: {Id}", message.Id);
+                    _logger.LogInformation(
+                        "Published outbox message {Id}", message.Id);
                 }
 
                 await db.SaveChangesAsync(stoppingToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Outbox publishing failed");
+                _logger.LogError(ex, "Outbox publish failed");
             }
 
             await Task.Delay(1000, stoppingToken);

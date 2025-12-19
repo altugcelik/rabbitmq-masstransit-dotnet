@@ -9,7 +9,7 @@ Host.CreateDefaultBuilder(args)
         services.AddDbContext<OrderDbContext>(opt =>
             opt.UseNpgsql(
                 "Host=localhost;Port=5432;Database=saga;Username=saga;Password=saga"));
-
+    
         services.AddMassTransit(x =>
         {
             x.AddConsumer<CreateOrderConsumer>();
@@ -18,15 +18,15 @@ Host.CreateDefaultBuilder(args)
             {
                 cfg.Host("localhost", "/", h =>
                 {
-                    h.Username("guest");
-                    h.Password("guest");
+                    h.Username("appuser");
+                    h.Password("apppassword");
                 });
 
                 cfg.ConfigureEndpoints(ctx);
             });
         });
 
-        // 🔥 SADECE BURADA Worker KULLANIYORUZ
+        services.AddHostedService<DatabaseInitializer>();
         services.AddHostedService<OutboxPublisherWorker>();
     })
     .Build()

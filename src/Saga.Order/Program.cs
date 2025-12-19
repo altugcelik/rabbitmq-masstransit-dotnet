@@ -13,8 +13,8 @@ Host.CreateDefaultBuilder(args)
             {
                 cfg.Host("localhost", "/", h =>
                 {
-                    h.Username("guest");
-                    h.Password("guest");
+                    h.Username("appuser");
+                    h.Password("apppassword");
                 });
 
                 cfg.ConfigureEndpoints(ctx);
