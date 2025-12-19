@@ -2,7 +2,7 @@ using MassTransit;
 using Services.Notification.Consumers;
 
 Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
+    .ConfigureServices(services =>
     {
         services.AddMassTransit(x =>
         {

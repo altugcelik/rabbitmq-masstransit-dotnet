@@ -2,12 +2,12 @@ using MassTransit;
 using Saga.Order;
 
 Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
+    .ConfigureServices(services =>
     {
         services.AddMassTransit(x =>
         {
             x.AddSagaStateMachine<OrderStateMachine, OrderState>()
-             .InMemoryRepository();
+             .InMemoryRepository(); // Prod’da PostgreSQL
 
             x.UsingRabbitMq((ctx, cfg) =>
             {
